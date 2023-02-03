@@ -1,10 +1,4 @@
-# %% [markdown]
-# ## Setup
 
-# %% [markdown]
-# Load the required libraries and frameworks
-
-# %%
 import holoviews as hv
 import panel as pn
 import numpy as np
@@ -17,10 +11,6 @@ import plotly.graph_objects as go
 from holoviews import opts, dim
 from panel.template import FastGridTemplate, DarkTheme
 
-# %% [markdown]
-# Load the data and declare the accent colours to be used. (For the graphs will used different ones for each, so they'll be declared at the building function)
-
-# %%
 df = pd.read_csv("https://raw.githubusercontent.com/elias-abril-f/dashboard-data/main/trips_by_year.csv?token=GHSAT0AAAAAAB5MTXZ6M4E4XFVWULJ3YVTKY65B5FQ", sep=",")
 df2 = pd.read_csv("https://raw.githubusercontent.com/elias-abril-f/dashboard-data/main/trips_by_month.csv?token=GHSAT0AAAAAAB5MTXZ6YKKMVLTXWBSMWRVUY65B5UQ", sep=",")
 df3 = pd.read_csv("https://raw.githubusercontent.com/elias-abril-f/dashboard-data/main/trips_by_hour.csv?token=GHSAT0AAAAAAB5MTXZ637IWDZIU56OIUFOQY65B57Q", sep=",")
@@ -30,15 +20,6 @@ chordData = pd.read_csv("https://raw.githubusercontent.com/elias-abril-f/dashboa
 
 HEADER_ACCENT = "#1c1c1c"
 
-# %% [markdown]
-# ## Builder functions
-
-# %% [markdown]
-# Create a function to create all the combo bar/line charts that can be drawn based on a widget that lets you select the Y axis. It creates the charts based on a parameterized class, that way the widget (selector, slider or any other type) is linked automaticaly, and the chart gets created by calling a self function and sent to a view function that creates a dynamic map, ensuring the chart will update as soon as anything is changed.
-# 
-# If you want to know how this custom class works, go to the end, there is a in depth explanation of the inner workings
-
-# %%
 def _create_barandlinewidget(data, x, main, accent, title="title"):
     class Plot(param.Parameterized):
         column = param.ObjectSelector(default=f"trips({x})", objects=[f"duration({x})", f"trips({x})"])
@@ -78,11 +59,6 @@ def _create_barandlinewidget(data, x, main, accent, title="title"):
         pn.Param(plot.param, name=title, show_labels=False, width = 500),
         dmap, sizing_mode="stretch_both")
     
-
-# %% [markdown]
-# Same as the previoius chart, but without a dropdown widget, as this chart doesn't have multiple metrics to show. 
-
-# %%
 def _create_barandline(data, main, accent, title="Title"):
     
     class Plot(param.Parameterized):        
@@ -121,17 +97,6 @@ def _create_barandline(data, main, accent, title="Title"):
     p = Plot()
     return pn.Column(p.view, sizing_mode="stretch_both", margin=(-20,0))
 
-# %% [markdown]
-# Now we create a map with all the docks. In this case, we remove the X and Y axis, since they dont offer any useful information.
-# 
-# Same as the other interactive plots that use panel widgets or parameters to filter or select data, we need to be careful not to have the same names (as in the columns or other keys used to select the target of the widget), because if the keyword is the same in different widgets, the plots targeted by those two widgets will become linked. The easiest solution is to name every data column (if using pandas dataframes) something different, for example, relating it to the general dataframe. Eg: if we have two dataframes df1 and df2 with the same columns height and width, we will name the columns height(df1) weight(df1) and height(df2) weight(df2)
-
-# %% [markdown]
-# As you can see, this map has a slider that acts as a filter, showing you the most popular stations to start a trip starting at the value selected in the slider. 
-# It works the same way as the other charts with widgets. The function creates a class with a function to create the plot/map, another one to create the dynamic map view and a hooks function to modify the look of the chart/map.
-
-# %%
-# maybe use geoviews in the future instead of hvplot for the map or folio leaflet
 def create_map(url, title="title"):
     class Map(param.Parameterized):
         
@@ -162,9 +127,6 @@ def create_map(url, title="title"):
         pn.Param(map.param, name=title, show_labels=False, sizing_mode="stretch_both"),
         map.view, sizing_mode="stretch_both")
     
-
-
-# %%
 def createChord():
     from bokeh.models import HoverTool
     from bokeh.plotting import ColumnDataSource
@@ -238,16 +200,7 @@ def createChord():
     
     return pn.Column(plot, sizing_mode="stretch_both")
 
-
-# %% [markdown]
-# ## Creation of the template
-
-# %% [markdown]
-# Now we create the template to make our dashboard look good with minimal effort. In this case I chose the fastgridtemplate, as it allows the user to move and resize the panels, and as you might have noticed, all our charts and maps are responsive, which means they will change in size as we change the size of the panels or our explorer window.
-# Also here we can create a header (and change its colours) and a sidebar (not used in this case). As well as other things like the panel collision, the height of the grid rows and other options. 
-
-# %%
-def main():
+def get_app():
     template = FastGridTemplate(
         title="London TFL Bike Journeys Dashboard",
         row_height=55,
@@ -270,4 +223,6 @@ def main():
     template.main[40:40, 0:12] = pn.Spacer()
     return template
 
+if __name__.startswith("bokeh"):
+    get_app().servable()
 
