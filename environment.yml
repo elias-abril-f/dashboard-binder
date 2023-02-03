@@ -1,8 +1,30 @@
+name: load-forecasts
+channels:
+  - conda-forge
 dependencies:
-  - holoviews::holoviews
-  - bokeh::bokeh
-  - pyviz::panel=0.5.1
-  - hvplot::hvplot
-  - pyviz::param=1.9.0
-  - geoviews::geoviews
-  - tornado<6
+  - dask[complete]
+  - holoviews
+  - hvplot
+  - jupyterlab
+  - notebook
+  - panel
+  - scikit-learn
+  - diskcache
+  - requests
+  - pyarrow
+  - openpyxl
+  - datashader
+  - scikit-learn
+  - pylint
+  - mypy
+  - pytest
+  - isort
+  - black
+  - autoflake
+  - cartopy
+  - geoviews
+  - voila
+  - jupyter-panel-proxy
+  - pip
+  - pip:
+    - git+https://github.com/holoviz/panel.git#egg=panel
